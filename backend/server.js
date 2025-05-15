@@ -16,44 +16,36 @@ const app = express()
 // Middleware para permitir JSON no corpo das requisições
 app.use(express.json())
 
-// Configurar CORS - IMPORTANTE: Esta configuração deve vir ANTES das rotas
+// Configurar CORS para permitir requisições do frontend
 app.use(
   cors({
-    origin: ["https://movie-frontend-tom2.onrender.com", "http://localhost:3000"],
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    // Em produção, isso será substituído pelo domínio do seu frontend no Render
+    origin:
+      process.env.NODE_ENV === "production"
+        ? process.env.FRONTEND_URL || "https://seu-app-frontend.onrender.com"
+        : "http://localhost:3000",
     credentials: true,
-    optionsSuccessStatus: 204,
   }),
 )
-
-// Middleware para adicionar cabeçalhos CORS manualmente (backup)
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "https://movie-frontend-tom2.onrender.com")
-  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization")
-  res.header("Access-Control-Allow-Credentials", "true")
-
-  // Responder imediatamente às solicitações OPTIONS
-  if (req.method === "OPTIONS") {
-    return res.status(204).end()
-  }
-
-  next()
-})
-
-// Rota de teste CORS
-app.get("/api/test-cors", (req, res) => {
-  res.json({ message: "CORS está funcionando corretamente!", timestamp: new Date().toISOString() })
-})
 
 // Definir rotas da API
 app.use("/api/movies", movieRoutes)
 
-// Rota básica para verificar se o servidor está funcionando
-app.get("/", (req, res) => {
-  res.send("API está funcionando! Ambiente: " + process.env.NODE_ENV)
-})
+// Servir arquivos estáticos do frontend em produção
+if (process.env.NODE_ENV === "production") {
+  // Pasta onde o frontend será construído
+  app.use(express.static(path.join(__dirname, "../frontend/build")))
+
+  // Qualquer rota não definida acima será redirecionada para o frontend
+  app.get("*", (req, res) => {
+    res.sendFile(path.resolve(__dirname, "../frontend/build", "index.html"))
+  })
+} else {
+  // Rota básica para verificar se o servidor está funcionando
+  app.get("/", (req, res) => {
+    res.send("API está funcionando! Ambiente: Desenvolvimento")
+  })
+}
 
 // Definir porta e iniciar o servidor
 const PORT = process.env.PORT || 5000
