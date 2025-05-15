@@ -13,7 +13,7 @@ const ApiDebug = () => {
   // URL da API
   const apiUrl =
     process.env.NODE_ENV === "production"
-      ? "https://movie-project-api-tom2.onrender.com/api"
+      ? "https://filmeslist.onrender.com/api"
       : "http://localhost:5000/api"
 
   // Testar automaticamente na montagem do componente

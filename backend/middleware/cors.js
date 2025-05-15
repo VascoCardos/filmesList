@@ -1,6 +1,6 @@
 const corsMiddleware = (req, res, next) => {
   // Lista de origens permitidas
-  const allowedOrigins = ["https://movie-frontend-tom2.onrender.com", "http://localhost:3000"]
+  const allowedOrigins = ["https://filmeslist-frontend.onrender.com", "http://localhost:3000"]
 
   const origin = req.headers.origin
 
