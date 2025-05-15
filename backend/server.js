@@ -4,7 +4,6 @@ const dotenv = require("dotenv")
 const cors = require("cors")
 const connectDB = require("./config/db")
 const movieRoutes = require("./routes/movieRoutes")
-const path = require("path")
 
 // Carregar variáveis de ambiente
 dotenv.config()
@@ -20,36 +19,21 @@ app.use(express.json())
 // Configurar CORS para permitir requisições do frontend
 app.use(
   cors({
-    // Em produção, isso será substituído pelo domínio do seu frontend no Render
-    origin:
-      process.env.NODE_ENV === "production"
-        ? process.env.FRONTEND_URL || "https://seu-app-frontend.onrender.com"
-        : "http://localhost:3000",
+    origin: "http://localhost:3000", // Endereço do frontend
     credentials: true,
   }),
 )
 
-// Definir rotas da API
+// Definir rotas
 app.use("/api/movies", movieRoutes)
 
-// Servir arquivos estáticos do frontend em produção
-if (process.env.NODE_ENV === "production") {
-  // Pasta onde o frontend será construído
-  app.use(express.static(path.join(__dirname, "../frontend/build")))
-
-  // Qualquer rota não definida acima será redirecionada para o frontend
-  app.get("*", (req, res) => {
-    res.sendFile(path.resolve(__dirname, "../frontend/build", "index.html"))
-  })
-} else {
-  // Rota básica para verificar se o servidor está funcionando
-  app.get("/", (req, res) => {
-    res.send("API está funcionando! Ambiente: Desenvolvimento")
-  })
-}
+// Rota básica para verificar se o servidor está funcionando
+app.get("/", (req, res) => {
+  res.send("API está funcionando!")
+})
 
 // Definir porta e iniciar o servidor
 const PORT = process.env.PORT || 5000
 app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT} em modo ${process.env.NODE_ENV}`)
+  console.log(`Servidor rodando na porta ${PORT}`)
 })

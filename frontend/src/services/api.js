@@ -1,15 +1,9 @@
 // Serviço para comunicação com a API do backend
 import axios from "axios"
 
-// URL base da API - será diferente em produção e desenvolvimento
-const baseURL =
-  process.env.NODE_ENV === "production"
-    ? "/api" // Em produção, usamos caminho relativo
-    : "http://localhost:5000/api" // Em desenvolvimento, usamos URL completa
-
 // Criar instância do axios com URL base da API
 const api = axios.create({
-  baseURL,
+  baseURL: "http://localhost:5000/api",
   timeout: 10000, // Timeout de 10 segundos
   headers: {
     "Content-Type": "application/json",
