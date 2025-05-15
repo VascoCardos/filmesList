@@ -1,17 +1,77 @@
-// Serviço para comunicação com a API do backend
 import axios from "axios"
+
+// URL base da API - será diferente em produção e desenvolvimento
+const API_URL =
+  process.env.NODE_ENV === "production"
+    ? "https://movie-project-api-tom2.onrender.com/api"
+    : "http://localhost:5000/api"
+
+console.log("API URL sendo usada:", API_URL) // Para debug
 
 // Criar instância do axios com URL base da API
 const api = axios.create({
-  baseURL: "http://localhost:5000/api",
-  timeout: 10000, // Timeout de 10 segundos
+  baseURL: API_URL,
+  timeout: 15000, // Aumentar timeout para 15 segundos
   headers: {
     "Content-Type": "application/json",
   },
+  // Importante: Permitir envio de cookies e credenciais
+  withCredentials: true,
 })
+
+// Interceptor para adicionar cabeçalhos a cada requisição
+api.interceptors.request.use(
+  (config) => {
+    // Adicionar cabeçalhos para ajudar com CORS
+    config.headers["X-Requested-With"] = "XMLHttpRequest"
+    return config
+  },
+  (error) => Promise.reject(error),
+)
+
+// Interceptor para tratar erros
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    console.error("Erro na requisição API:", error)
+
+    if (error.response) {
+      console.error("Dados do erro:", error.response.data)
+      console.error("Status do erro:", error.response.status)
+      console.error("Cabeçalhos da resposta:", error.response.headers)
+    } else if (error.request) {
+      console.error("Requisição feita mas sem resposta:", error.request)
+    } else {
+      console.error("Erro ao configurar requisição:", error.message)
+    }
+
+    return Promise.reject(error)
+  },
+)
+
+// Função para testar a conexão com a API
+const testApiConnection = async () => {
+  try {
+    const response = await api.get("/test-cors")
+    console.log("Teste de API bem-sucedido:", response.data)
+    return {
+      success: true,
+      data: response.data,
+    }
+  } catch (error) {
+    console.error("Teste de API falhou:", error)
+    return {
+      success: false,
+      error: error.message,
+    }
+  }
+}
 
 // Serviço de filmes
 const movieService = {
+  // Testar conexão com a API
+  testConnection: testApiConnection,
+
   // Obter todos os filmes (com paginação e filtros opcionais)
   getMovies: async (pagina = 1, limite = 10, filtros = {}) => {
     try {

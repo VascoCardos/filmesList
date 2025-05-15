@@ -1,4 +1,3 @@
-// Rotas para a API de filmes
 const express = require("express")
 const router = express.Router()
 const movieController = require("../controllers/movieController")

@@ -1,4 +1,3 @@
-// Controladores para operações CRUD de filmes
 const Movie = require("../models/Movie")
 
 // Obter todos os filmes com paginação

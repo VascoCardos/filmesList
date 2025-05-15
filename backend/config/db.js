@@ -1,4 +1,3 @@
-// Configuração da conexão com o MongoDB
 const mongoose = require("mongoose")
 
 // Função assíncrona para conectar ao MongoDB

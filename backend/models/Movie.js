@@ -1,4 +1,3 @@
-// Modelo de dados para filmes no MongoDB
 const mongoose = require("mongoose")
 
 // Definição do esquema para a coleção de filmes

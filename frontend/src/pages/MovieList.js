@@ -23,6 +23,7 @@ import {
 import { FilterAlt, Clear } from "@mui/icons-material"
 import MovieCard from "../components/MovieCard"
 import movieService from "../services/api"
+import ApiDebug from "../components/ApiDebug"
 
 // Função para extrair parâmetros de consulta da URL
 function useQuery() {
@@ -113,6 +114,9 @@ const MovieList = () => {
       <Typography variant="h4" component="h1" gutterBottom>
         Catálogo de Filmes
       </Typography>
+
+      {/* Componente de debug - remova em produção quando tudo estiver funcionando */}
+      {process.env.NODE_ENV === "development" && <ApiDebug />}
 
       {/* Seção de filtros */}
       <Paper sx={{ p: 2, mb: 3 }}>
