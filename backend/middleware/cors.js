@@ -1,25 +1,57 @@
-const corsMiddleware = (req, res, next) => {
-  // Lista de origens permitidas
-  const allowedOrigins = ["https://filmeslist-frontend.onrender.com", "http://localhost:3000"]
+const express = require("express")
+const cors = require("cors")
+const mongoose = require("mongoose")
+const movieRoutes = require("./routes/movieRoutes") // ajuste o caminho conforme necessário
 
-  const origin = req.headers.origin
+const app = express()
 
-  // Verificar se a origem da requisição está na lista de origens permitidas
-  if (allowedOrigins.includes(origin)) {
-    res.header("Access-Control-Allow-Origin", origin)
-  }
+// Lista de origens permitidas
+const allowedOrigins = [
+  "https://filmeslist-frontend.onrender.com",
+  "http://localhost:3000",
+]
 
-  // Configurar outros cabeçalhos CORS
-  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization")
-  res.header("Access-Control-Allow-Credentials", "true")
+// Configuração CORS
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true)
+      } else {
+        callback(new Error("Origem não permitida pelo CORS"))
+      }
+    },
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: [
+      "Origin",
+      "X-Requested-With",
+      "Content-Type",
+      "Accept",
+      "Authorization",
+    ],
+    credentials: true,
+  })
+)
 
-  // Responder imediatamente às solicitações OPTIONS (preflight)
-  if (req.method === "OPTIONS") {
-    return res.status(204).end()
-  }
+// Middleware para JSON
+app.use(express.json())
 
-  next()
-}
+// Conexão com MongoDB
+mongoose
+  .connect(process.env.MONGODB_URI || "mongodb://localhost:27017/filmesdb")
+  .then(() => console.log("MongoDB conectado"))
+  .catch((err) => console.error("Erro ao conectar ao MongoDB:", err))
 
-module.exports = corsMiddleware
+// Rotas da API
+app.use("/api/movies", movieRoutes)
+
+// Rota raiz
+app.get("/", (req, res) => {
+  res.send("API de Filmes está funcionando!")
+})
+
+// Inicializar servidor
+const PORT = process.env.PORT || 5000
+app.listen(PORT, () => {
+  console.log(`Servidor rodando na porta ${PORT}`)
+})
